@@ -46,9 +46,9 @@ class Form
         $this->components[] = $component_class::create($this, $validators, $name, $label_text, $classes);
     }
 
-    public function configSubmit($text, $classes)
+    public function configSubmit($text, $classes = [])
     {
-        $this->submit = "<div class='brickform-button-group'><button type='submit' class='brickform-submit";
+        $this->submit = "<div class='brickform-button-group'><button type='submit' id='brickform-submit-" . $this->instance_id . "' class='brickform-submit ";
         foreach ($classes as $class) {
             $this->submit .= " " . $class;
         }
@@ -159,9 +159,15 @@ abstract class FormComponent
     }
 
     // return classes parsed as html
-    protected function parseClasses()
+    protected function parseClasses($additionals = null)
     {
         $html = "class='";
+
+        if ($additionals) {
+            foreach ($additionals as $class)
+                $html .= $class . " ";
+        }
+
         foreach ($this->classes as $class) {
             $html .= $class . ' ';
         }
@@ -208,6 +214,39 @@ class PasswordField extends FormComponent
 
         $field->name = $field->name == null ? "password" : $field->name;
         $field->label_text = $field->label_text == null ? "Mot de passe" : $field->label_text;
+
+        $field->id = 'brickform-field-' . $field->parent->getId() . '-' . $field->parent->getItemCount();
+        return $field;
+    }
+}
+
+class NumberField extends FormComponent
+{
+    // Override
+    public function getView()
+    {
+        $html = "<input type='number' id='$this->id' name='$this->name' ";
+
+        foreach ($this->validators as $v) {
+            $explode = explode(':', $v);
+            if (count($explode) == 2) {
+                if ($explode[0] == 'min')
+                    $html .= "min=$explode[1] ";
+                else if ($explode[0] == 'max')
+                    $html .= "max=$explode[1] ";
+            }
+        }
+
+        $html .= $this->parseClasses(['brickform-number']) . $this->parseValidators() . ">";
+        return $this->inFormGroup($html);
+    }
+
+    public static function create($parent, $validators = [], $name = 'number', $label_text = 'Number', $classes = [])
+    {
+        $field = new NumberField($parent, $validators, $name, $label_text, $classes);
+
+        $field->name = $field->name == null ? "number" : $field->name;
+        $field->label_text = $field->label_text == null ? "Nombre" : $field->label_text;
 
         $field->id = 'brickform-field-' . $field->parent->getId() . '-' . $field->parent->getItemCount();
         return $field;

@@ -14,11 +14,7 @@
     <?php
 
     $form = new BrickForm\Form();
-    $form->add(BrickForm\Field::class, ['required']);
-    $form->add(BrickForm\PasswordField::class, [
-        'required', 'atleast_2_number', 'atleast_1_specialchar',
-        'atleast_8_character', 'toconfirm'
-    ]);
+    $form->add(BrickForm\NumberField::class, ['min:8', 'max:1000']);
 
     echo $form->getView();
 

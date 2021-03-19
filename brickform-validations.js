@@ -8,11 +8,13 @@ const error_messages = {
     'required': "Veuillez remplir ce champs",
 
     'number': "chiffres",
-    'specialchar' : "caractères spéciaux",
+    'specialchar': "caractères spéciaux",
     'uppercase': "majuscules",
-    'lowercase' : "minuscules",
-    'character' : "caractères"
+    'lowercase': "minuscules",
+    'character': "caractères"
 }
+
+const brickform_confirm_errors = []
 
 brickform_submits.forEach(function (submit) {
     submit.addEventListener('click', function (e) {
@@ -35,14 +37,15 @@ brickform_submits.forEach(function (submit) {
             validators.forEach(function (validator) {
 
                 if (validator === 'toconfirm') {
-                    var brickform_confirm = document.querySelector('#' + field.id + "-confirm");
+                    const brickform_confirm = document.querySelector('#' + field.id + "-confirm");
                     if (brickform_confirm.value !== field.value) {
                         document.querySelector('#brickform-group-' + brickform_confirm.id).classList.add('error');
-                        document.querySelector('#brickform-group-' + brickform_confirm.id).querySelector('.brickform-errors').innerHTML = '<li>'+error_messages['toconfirm']+'</li>';
+                        document.querySelector('#brickform-group-' + brickform_confirm.id).querySelector('.brickform-errors').innerHTML = '<li>' + error_messages['toconfirm'] + '<li>';
+                        console.log(document.querySelector('#brickform-group-' + brickform_confirm.id).querySelector('.brickform-errors'));
                         brickform_error_count++;
                     }
-                } else if(validator === 'nospace'){
-                    if(field.value.split(' ').length > 1){
+                } else if (validator === 'nospace') {
+                    if (field.value.split(' ').length > 1) {
                         document.querySelector('#brickform-group-' + field.id).classList.add('error');
                         errors.push(error_messages['nospace']);
                         brickform_error_count++;
@@ -56,7 +59,7 @@ brickform_submits.forEach(function (submit) {
                     switch (chartype) {
                         case 'number':
                             for (var i = 0; i < field.value.length; i++) {
-                                if(!isNaN(field.value.charAt(i)))
+                                if (!isNaN(field.value.charAt(i)))
                                     quota++;
                             }
                             break;
@@ -69,19 +72,19 @@ brickform_submits.forEach(function (submit) {
                             break;
 
                         case 'lowercase':
-                            for(var i = 0; i < field.value.length; i++){
-                                if(field.value.charAt(i) == field.value.charAt(i).toLowerCase())
+                            for (var i = 0; i < field.value.length; i++) {
+                                if (field.value.charAt(i) == field.value.charAt(i).toLowerCase())
                                     quota++;
                             }
                             break;
 
                         case 'uppercase':
-                            for(var i = 0; i < field.value.length; i++){
-                                if(field.value.charAt(i) == field.value.charAt(i).toUpperCase())
+                            for (var i = 0; i < field.value.length; i++) {
+                                if (field.value.charAt(i) == field.value.charAt(i).toUpperCase())
                                     quota++;
                             }
                             break;
-                        
+
                         case 'character':
                             quota = field.value.length;
                             break;
@@ -92,18 +95,18 @@ brickform_submits.forEach(function (submit) {
                     if (quota < min) {
                         document.querySelector('#brickform-group-' + field.id).classList.add('error');
                         brickform_X = min;
-                        errors.push(error_messages['atleast_X']+' '+brickform_X+' '+error_messages[chartype]);
+                        errors.push(error_messages['atleast_X'] + ' ' + brickform_X + ' ' + error_messages[chartype]);
                         brickform_error_count++;
                     }
-                } else if(validator === 'email_format'){
+                } else if (validator === 'email_format') {
                     const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-                    if(!field.value.match(re)){
+                    if (!field.value.match(re)) {
                         document.querySelector('#brickform-group-' + field.id).classList.add('error');
                         errors.push(error_messages['email_format']);
                         brickform_error_count++;
                     }
-                } else if(validator === 'required'){
-                    if(!field.value.length == 0){
+                } else if (validator === 'required') {
+                    if (field.value.length == 0) {
                         document.querySelector('#brickform-group-' + field.id).classList.add('error');
                         errors.push(error_messages['required']);
                         brickform_error_count++;
@@ -113,14 +116,30 @@ brickform_submits.forEach(function (submit) {
 
             var html = "";
 
-            errors.forEach(function(error){
-                html += '<li>'+error+'</li>';
+            errors.forEach(function (error) {
+                html += '<li>' + error + '</li>';
             })
             document.querySelector('#brickform-group-' + field.id).querySelector('.brickform-errors').innerHTML = html;
             errors = [];
         })
 
-        if(!brickform_error_count)
-            document.querySelector('#brickform-form-'+id).submit();
+        if (!brickform_error_count)
+            document.querySelector('#brickform-form-' + id).submit();
+    })
+})
+
+const brickform_number_fields = document.querySelectorAll('.brickform-number');
+console.log(brickform_number_fields.length)
+brickform_number_fields.forEach(function(field){
+    field.value = field.min;
+    console.log(field.max);
+    field.addEventListener('input', function(){
+
+        if (isNaN(field.value) || field.value < field.min) {
+            field.value = field.min;
+        } else if (parseInt(field.value) > field.max) {
+            field.value = field.max;
+        }
+        
     })
 })

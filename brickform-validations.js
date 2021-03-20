@@ -1,5 +1,6 @@
 const brickform_submits = document.querySelectorAll('.brickform-submit');
 var brickform_X = 0;
+
 const error_messages = {
     'atleast_X': "La valeur doit contenir au moins ",
     'nospace': "La valeur ne doit pas contenir d'espaces",
@@ -114,6 +115,25 @@ brickform_submits.forEach(function (submit) {
                 }
             })
 
+            if (typeof (brickform_json_data) !== "undefined" && field.id in brickform_json_data) {
+
+                for (var i = 0; i < brickform_json_data[field.id].length; i++) {
+
+                    console.log(brickform_json_data[field.id][i]);
+                    brickform_error_count++;
+
+                    const result = window[brickform_json_data[field.id][i]](field);
+                    const valid = result[0];
+
+                    if (!valid) {
+                        document.querySelector('#brickform-group-' + field.id).classList.add('error');
+                        errors.push(result[1]);
+                        brickform_error_count++;
+                    }
+                }
+
+            }
+
             var html = "";
 
             errors.forEach(function (error) {
@@ -130,16 +150,17 @@ brickform_submits.forEach(function (submit) {
 
 const brickform_number_fields = document.querySelectorAll('.brickform-number');
 console.log(brickform_number_fields.length)
-brickform_number_fields.forEach(function(field){
+brickform_number_fields.forEach(function (field) {
     field.value = field.min;
     console.log(field.max);
-    field.addEventListener('input', function(){
+    field.addEventListener('input', function () {
 
         if (isNaN(field.value) || field.value < field.min) {
             field.value = field.min;
         } else if (parseInt(field.value) > field.max) {
             field.value = field.max;
         }
-        
+
     })
 })
+

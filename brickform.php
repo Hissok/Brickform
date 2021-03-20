@@ -6,6 +6,7 @@ class Form
 {
 
     public static $INSTANCE_COUNT = 0;
+    public static $INSTANCES = array();
 
     private $item_count = 0;
     private $instance_id;
@@ -23,6 +24,7 @@ class Form
         self::$INSTANCE_COUNT++;
         $this->instance_id = self::$INSTANCE_COUNT;
         $this->id = $this->instance_id;
+        self::$INSTANCES[] = $this;
         $this->submit = "<div class='brickform-button-group'><button type='submit' class='brickform-submit' id='brickform-submit-" . $this->instance_id . "'>Valider</button></div>";
     }
 
@@ -65,6 +67,26 @@ class Form
         return $this->item_count;
     }
 
+    public static function getCustomValidatorsAsJSON()
+    {
+
+        $json = array();
+
+        foreach (self::$INSTANCES as $instance) {
+            foreach ($instance->components as $component) {
+                if (!empty($component->getCustomValidators())) {
+                    $array = [];
+                    foreach ($component->getCustomValidators() as $func_name) {
+                        $array[] = $func_name;
+                    }
+                    $json[$component->getId()] = $array;
+                }
+            }
+        }
+
+        return json_encode($json);
+    }
+
     public function getView()
     {
         $html = "<form action='$this->action' method='$this->method' id='brickform-form-$this->id' class='brickform-form ";
@@ -89,6 +111,16 @@ class Form
 
         return $html;
     }
+
+    public function getElementByName(?string $name)
+    {
+        foreach ($this->components as $component) {
+            if ($component->getName() === $name)
+                return $component;
+        }
+
+        return null;
+    }
 }
 
 abstract class FormComponent
@@ -99,10 +131,21 @@ abstract class FormComponent
     protected $classes = array();
     protected $parent;
     protected $validators = [];
+    protected $custom_validators = array();
 
     public function getValidators()
     {
         return $this->validators;
+    }
+
+    public function getCustomValidators()
+    {
+        return $this->custom_validators;
+    }
+
+    public function getId()
+    {
+        return $this->id;
     }
 
     // Parse validators into html format
@@ -130,6 +173,11 @@ abstract class FormComponent
         return $copy->getView();
     }
 
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
     protected function __construct($parent, $validators, $name, $label_text, $classes)
     {
         $this->parent = $parent;
@@ -140,6 +188,11 @@ abstract class FormComponent
         $this->validators = $validators;
 
         $this->parent->incrementItemCount();
+    }
+
+    public function addCustomValidator(?string $js_func_name)
+    {
+        $this->custom_validators[] = $js_func_name;
     }
 
     // return the widget as html format

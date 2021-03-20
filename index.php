@@ -14,7 +14,11 @@
     <?php
 
     $form = new BrickForm\Form();
-    $form->add(BrickForm\NumberField::class, ['min:8', 'max:1000']);
+    $form->add(BrickForm\Field::class);
+    $form->add(BrickForm\PasswordField::class, ['toconfirm']);
+
+    $form->getElementByName('username')->addCustomValidator('test1');
+    $form->getElementByName('username')->addCustomValidator('test2');
 
     echo $form->getView();
 
@@ -22,6 +26,12 @@
 
 </body>
 
-<script type="text/javascript" src="brickform-validations.js" defer></script>
+<script>
+    var brickform_json_data = <?php echo BrickForm\Form::getCustomValidatorsAsJSON(); ?>
+</script>
+<script type="text/javascript" src="testfunc.js" defer></script>
+<script type="text/javascript" src="brickform-validations.js" defer>
+
+</script>
 
 </html>

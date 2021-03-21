@@ -33,21 +33,35 @@ class Form
         return $this->instance_id;
     }
 
+    // GET or POST
+
     public function setMethod(?string $method)
     {
         $this->method = strtoupper($method);
     }
+
+    // Set the url action parameter
 
     public function setAction(?string $action)
     {
         $this->action = $action;
     }
 
+    /**
+     * Add a component to the form
+     * parameter :
+     *      component_class : The class of the target component (ex for Field, Field::class)
+     *      validators : Validator keywords, see doc
+     *      name : HTML name attribute
+     *      label_text : Text of the label about the component
+     *      classes : HTML class attribute
+     */
     public function add($component_class, $validators = [], $name = null, $label_text = null, $classes = [])
     {
         $this->components[] = $component_class::create($this, $validators, $name, $label_text, $classes);
     }
 
+    // To change the text of the submit, and optionally some CSS classes
     public function configSubmit($text, $classes = [])
     {
         $this->submit = "<div class='brickform-button-group'><button type='submit' id='brickform-submit-" . $this->instance_id . "' class='brickform-submit ";
@@ -58,15 +72,19 @@ class Form
         $this->submit .= "'>" . $text . "</button></div>";
     }
 
+    // DONT USE
     public function incrementItemCount()
     {
         $this->item_count++;
     }
+
+    // USELESS FOR DEV, ONLY FOR COMPONENTS
     public function getItemCount()
     {
         return $this->item_count;
     }
 
+    // Return the custom validators (see doc) as a Json array. Use once for all forms
     public static function getCustomValidatorsAsJSON()
     {
 
@@ -87,6 +105,7 @@ class Form
         return json_encode($json);
     }
 
+    // return html code of the form and its components
     public function getView()
     {
         $html = "<form action='$this->action' method='$this->method' id='brickform-form-$this->id' class='brickform-form ";
@@ -112,6 +131,7 @@ class Form
         return $html;
     }
 
+    // get an inner component by its HTML name attribute
     public function getElementByName(?string $name)
     {
         foreach ($this->components as $component) {
@@ -123,15 +143,16 @@ class Form
     }
 }
 
+// Abstract class from which all components extend
 abstract class FormComponent
 {
-    protected $label_text;
-    protected $name;
+    protected $label_text; //Label text of the component
+    protected $name;    // HTML name attribute
     protected $id;
-    protected $classes = array();
-    protected $parent;
+    protected $classes = array();   // HTML class attribute
+    protected $parent;  // Form parent
     protected $validators = [];
-    protected $custom_validators = array();
+    protected $custom_validators = array(); // See doc
 
     public function getValidators()
     {
@@ -173,11 +194,19 @@ abstract class FormComponent
         return $copy->getView();
     }
 
+    // Get HTML name attribute
     public function getName(): string
     {
         return $this->name;
     }
 
+    /**
+     * parent : form parent
+     * validators : see doc
+     * name : html name attr
+     * label_text: text of the label
+     * classes: class html attribute
+     */
     protected function __construct($parent, $validators, $name, $label_text, $classes)
     {
         $this->parent = $parent;
@@ -190,6 +219,7 @@ abstract class FormComponent
         $this->parent->incrementItemCount();
     }
 
+    // SEE DOC
     public function addCustomValidator(?string $js_func_name)
     {
         $this->custom_validators[] = $js_func_name;
@@ -197,6 +227,8 @@ abstract class FormComponent
 
     // return the widget as html format
     abstract public function getView();
+    // Used in Form::add()
+    abstract public static function create($parent, $validators = [], $name = 'number', $label_text = 'Number', $classes = []);
 
     // return the widget html in a special div | labelized true if you want a label
     protected function inFormGroup(?string $view_html, ?bool $labelized = true)
@@ -229,6 +261,7 @@ abstract class FormComponent
     }
 }
 
+// input type="text"
 class Field extends FormComponent
 {
 
@@ -239,6 +272,7 @@ class Field extends FormComponent
         return $this->inFormGroup($html);
     }
 
+    // Override
     public static function create($parent, $validators = [], $name = 'username', $label_text = 'Username', $classes = [])
     {
         $field = new Field($parent, $validators, $name, $label_text, $classes);
@@ -251,6 +285,7 @@ class Field extends FormComponent
     }
 }
 
+// input type="password"
 class PasswordField extends FormComponent
 {
     //Override
@@ -273,6 +308,8 @@ class PasswordField extends FormComponent
     }
 }
 
+
+// input type="number"
 class NumberField extends FormComponent
 {
     // Override
@@ -294,6 +331,7 @@ class NumberField extends FormComponent
         return $this->inFormGroup($html);
     }
 
+    // Override
     public static function create($parent, $validators = [], $name = 'number', $label_text = 'Number', $classes = [])
     {
         $field = new NumberField($parent, $validators, $name, $label_text, $classes);

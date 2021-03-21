@@ -15,7 +15,7 @@
 
     $form = new BrickForm\Form();
     $form->add(BrickForm\Field::class);
-    $form->add(BrickForm\PasswordField::class, ['toconfirm']);
+    $form->add(BrickForm\PasswordField::class, ['toconfirm', 'atleast_3_number', 'nospace']);
 
     echo $form->getView();
 

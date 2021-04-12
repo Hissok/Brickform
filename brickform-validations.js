@@ -1,4 +1,4 @@
-/** Do Not modify following content */
+/** DO NOT MODIFY THIS CONTENT */
 
 const brickform_submits = document.querySelectorAll('.brickform-submit');
 var brickform_X = 0;
@@ -8,9 +8,14 @@ var errors = [];
 /*************************************** */
 
 /**
- * If you want to change the error messages: Indexes correspond to the validator code
+ * If you want to modify the error messages: Indexes correspond to the validator code
  * 
- * for the atleast errors, change the 'atleast_X', then the type from 'number' to 'character'
+ * for "atleast" validators, change the 'atleast_X' message, then the type from 'number' to 'character'
+ * 
+ * example : 'atleast_X': 'Please type at least '
+ *           'number': 'numbers'
+ *          
+ *          will return 'Please type at least 3 numbers' for the 'atleast_3_number' validator
  *  */
 const error_messages = {
     'atleast_X': "La valeur doit contenir au moins ",
@@ -19,6 +24,7 @@ const error_messages = {
     'toconfirm': "Les deux valeurs ne correspondent pas",
     'required': "Veuillez remplir ce champs",
 
+    // atleast_X types
     'number': "chiffres",
     'specialchar': "caractères spéciaux",
     'uppercase': "majuscules",
@@ -26,9 +32,12 @@ const error_messages = {
     'character': "caractères"
 }
 
+// DO NOT MODIFY FOR ANYTHING FROM HERE
 brickform_submits.forEach(function (submit) {
     submit.addEventListener('click', function (e) {
         e.preventDefault();
+        brickform_error_count = 0;
+        errors = [];
         document.querySelectorAll('.brickform-form-group').forEach((group) => {
             group.classList.remove('error');
         })
@@ -62,9 +71,6 @@ brickform_submits.forEach(function (submit) {
             if (typeof (brickform_json_data) !== "undefined" && field.id in brickform_json_data) {
 
                 for (var i = 0; i < brickform_json_data[field.id].length; i++) {
-
-                    console.log(brickform_json_data[field.id][i]);
-                    brickform_error_count++;
 
                     const result = window[brickform_json_data[field.id][i]](field);
                     const valid = result[0];

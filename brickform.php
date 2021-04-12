@@ -105,6 +105,12 @@ class Form
         return json_encode($json);
     }
 
+    // return true if form is submitted
+    public function isSubmitted()
+    {
+        return isset($_REQUEST['brickform_is_submitted']);
+    }
+
     // return html code of the form and its components
     public function getView()
     {
@@ -126,7 +132,7 @@ class Form
 
         $html .= $this->submit;
 
-        $html .= "</form>";
+        $html .= "<input type='hidden' name='brickform_is_submitted' value='1'></form>";
 
         return $html;
     }

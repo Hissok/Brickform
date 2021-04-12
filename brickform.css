@@ -1,0 +1,36 @@
+.brickform-form-group{
+    display: flex;
+    flex-direction: column;
+    margin-bottom : 10px;
+}
+
+.brickform-form-group.error .brickform-field{
+    border: 2px solid rgb(255, 0, 0);
+} .brickform-form-group.error label{
+    color:rgb(255, 0, 0);
+}
+
+.brickform-field{
+    padding : 10px 5px;
+    border-radius: 3px;
+    border: 1px solid #444;
+}
+
+.brickform-submit{
+    padding : 10px 20px;
+    border : 2px solid rgb(5, 130, 168);
+    color: rgb(5, 130, 168);
+    border-radius: 2px;
+    background: transparent;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+.brickform-submit:hover{
+    background:rgb(5, 130, 168);
+    color: #fff;
+}
+
+.brickform-errors{
+    margin: 0;
+    color: red;
+}
